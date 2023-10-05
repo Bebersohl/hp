@@ -13,10 +13,6 @@ const io = new Server(httpServer, {
   },
 });
 
-app.get("/hello", (_, res) => {
-  res.send("Hello Vite + React + TypeScript!");
-});
-
 io.on("connection", (socket) => {
   console.log("connection!");
   socket.on("chat message", (msg) => {
