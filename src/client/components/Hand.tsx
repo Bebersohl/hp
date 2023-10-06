@@ -1,5 +1,5 @@
 import { Container } from "@pixi/react";
-import { Card as CardType } from "../game";
+import { Card as CardType } from "../../game";
 import Card from "./Card";
 
 type HandProps = {

@@ -1,5 +1,5 @@
 import { Sprite } from "@pixi/react";
-import { cardHeight, cardWidth } from "./constants";
+import { cardHeight, cardWidth } from "../constants";
 
 type CardProps = {
   image: string;
@@ -47,11 +47,11 @@ export default function Card({ x, y, image, zIndex }: CardProps) {
       pointerup={onDragEnd}
       pointerupoutside={onDragEnd}
       pointermove={onDragMove}
-      onmouseenter={(e) => {
+      onmouseenter={(e: any) => {
         e.currentTarget.zIndex = 11;
         e.currentTarget.scale.set(0.45, 0.45);
       }}
-      onmouseleave={(e) => {
+      onmouseleave={(e: any) => {
         e.currentTarget.zIndex = zIndex;
         e.currentTarget.scale.set(0.4, 0.4);
       }}

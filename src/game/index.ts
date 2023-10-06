@@ -1,3 +1,5 @@
+import { Socket } from "socket.io";
+
 export default function createGame(options: Options) {
   const game: Game = {
     p1: createPlayer(options.p1.deck),
@@ -8,6 +10,7 @@ export default function createGame(options: Options) {
   };
 
   const api = {
+    roomId: options.roomId,
     startGame,
     getBoardState,
     playCard,
@@ -17,7 +20,7 @@ export default function createGame(options: Options) {
 
   return api;
 
-  function otherPlayer(playerKey: "p1" | "p2") {
+  function opponentPlayer(playerKey: PlayerKey) {
     if (playerKey === "p1") {
       return "p2";
     }
@@ -27,14 +30,14 @@ export default function createGame(options: Options) {
 
   function minionAttack(attackerIndex: number, victimIndex: number | "hero") {
     const player = game[game.turn];
-    const victimPlayer = game[otherPlayer(game.turn)];
+    const victimPlayer = game[opponentPlayer(game.turn)];
 
     if (game.status !== "in progress") {
       console.log("Cannot attack. Game is not in progress.");
       return api;
     }
 
-    const attackerMinion = player.board[attackerIndex];
+    const attackerMinion = player.minions[attackerIndex];
 
     if (!attackerMinion) {
       console.log("Cannot attack. Attacking minion not found.");
@@ -53,7 +56,7 @@ export default function createGame(options: Options) {
       return api;
     }
 
-    const victimMinion = victimPlayer.board[victimIndex];
+    const victimMinion = victimPlayer.minions[victimIndex];
 
     if (!victimMinion) {
       console.log("Cannot attack. Victim minion not found.");
@@ -64,7 +67,7 @@ export default function createGame(options: Options) {
     attackerMinion.hasAction = false;
 
     if (victimMinion.health <= 0) {
-      victimPlayer.board.splice(victimIndex, 1);
+      victimPlayer.minions.splice(victimIndex, 1);
     }
 
     return api;
@@ -88,7 +91,7 @@ export default function createGame(options: Options) {
       return api;
     }
 
-    if (player.board.length >= 7) {
+    if (player.minions.length >= 7) {
       console.log(`Cannot play card. ${game.turn}'s board is full.`);
       return api;
     }
@@ -102,10 +105,11 @@ export default function createGame(options: Options) {
 
     player.mana -= card.cost;
 
-    player.board.splice(boardIndex, 0, {
+    player.minions.splice(boardIndex, 0, {
       health: card.health,
       attack: card.attack,
       hasAction: false,
+      name: card.name,
     });
 
     return api;
@@ -127,26 +131,51 @@ export default function createGame(options: Options) {
     return api;
   }
 
-  function startTurn(playerKey: "p1" | "p2") {
+  function startTurn(playerKey: PlayerKey) {
     const player = game[playerKey];
+    const maxMana = Math.min(game.round, 10);
 
     drawCards(playerKey, 1);
-    player.mana = Math.min(game.round, 10);
-    player.board.forEach((minion) => (minion.hasAction = true));
+    player.mana = maxMana;
+    player.maxMana = maxMana;
+
+    player.minions.forEach((minion) => (minion.hasAction = true));
     game.turn = playerKey;
   }
 
-  function getBoardState() {
-    return game;
+  function getBoardState(playerKey: "p1" | "p2"): BoardState {
+    const {
+      hand: opponentHand,
+      deck: opponentDeck,
+      ...opponent
+    } = game[opponentPlayer(playerKey)];
+
+    const { deck, ...player } = game[playerKey];
+
+    return {
+      turn: "p1",
+      round: 1,
+      status: "init",
+      player: {
+        deckCount: deck.length,
+        ...player,
+      },
+      opponent: {
+        handCount: opponentHand.length,
+        deckCount: opponentDeck.length,
+        ...opponent,
+      },
+    };
   }
 
   function createPlayer(deck: Card[]): Player {
     return {
       health: 30,
-      board: [],
+      minions: [],
       deck,
       hand: [],
       mana: 0,
+      maxMana: 0,
       burnCount: 0,
     };
   }
@@ -179,7 +208,7 @@ export default function createGame(options: Options) {
     }
   }
 
-  function drawCards(playerKey: "p1" | "p2", numOfCards: number) {
+  function drawCards(playerKey: PlayerKey, numOfCards: number) {
     const player = game[playerKey];
 
     for (let i = 0; i < numOfCards; i++) {
@@ -198,21 +227,29 @@ export default function createGame(options: Options) {
   }
 }
 
-type Game = {
+export type Game = {
   p1: Player;
   p2: Player;
-  turn: "p1" | "p2";
+  turn: PlayerKey;
   round: number;
-  status: "init" | "in progress" | "p1 win" | "p2 win" | "draw";
+  status: GameStatus;
 };
+
+type GameStatus = "init" | "in progress" | "p1 win" | "p2 win" | "draw";
 
 type Player = {
   health: number;
-  board: Minion[];
+  minions: Minion[];
   deck: Card[];
   hand: Card[];
   mana: number;
+  maxMana: number;
   burnCount: number;
+};
+
+type Oppononent = Omit<Player, "hand" | "deck"> & {
+  handCount: number;
+  deckCount: number;
 };
 
 export type Card = {
@@ -220,19 +257,34 @@ export type Card = {
   cost: number;
   health: number;
   attack: number;
+  name: string;
 };
 
 export type Minion = {
   health: number;
   attack: number;
   hasAction: boolean;
+  name: string;
 };
 
 type Options = {
   p1: {
     deck: Card[];
+    socket: Socket;
   };
   p2: {
     deck: Card[];
+    socket: Socket;
   };
+  roomId: string;
+};
+
+type PlayerKey = "p1" | "p2";
+
+export type BoardState = {
+  turn: PlayerKey;
+  round: number;
+  status: GameStatus;
+  player: Omit<Player, "deck"> & { deckCount: number };
+  opponent: Oppononent;
 };

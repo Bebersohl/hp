@@ -2,7 +2,7 @@ import { Container, Graphics, Text } from "@pixi/react";
 import { TextStyle } from "pixi.js";
 import { ComponentProps, useCallback } from "react";
 import Health from "./Health";
-import { heroSize } from "./constants";
+import { heroSize } from "./../constants";
 
 type Draw = NonNullable<ComponentProps<typeof Graphics>["draw"]>;
 

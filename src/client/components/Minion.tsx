@@ -1,20 +1,21 @@
-import { Container, Graphics, Text, useApp } from "@pixi/react";
+import { Container, Graphics, Text } from "@pixi/react";
 import { TextStyle } from "pixi.js";
 import { ComponentProps, useCallback } from "react";
 import Attack from "./Attack";
 import Health from "./Health";
+import { Minion as MinionType } from "../../game";
+import { minionHeight, minionWidth } from "./../constants";
 
 type Draw = NonNullable<ComponentProps<typeof Graphics>["draw"]>;
 
 type MinionProps = {
-  attack: number;
-  health: number;
-  name: string;
+  minion: MinionType;
+  x: number;
+  y: number;
 };
-const minionWidth = 32;
-const minionHeight = 44;
 
-export default function Minion({ attack, health, name }: MinionProps) {
+export default function Minion({ minion, x, y }: MinionProps) {
+  const { health, attack, name } = minion;
   const draw = useCallback<Draw>((g) => {
     g;
     g.clear();
@@ -22,11 +23,9 @@ export default function Minion({ attack, health, name }: MinionProps) {
     g.drawEllipse(0, 0, minionWidth, minionHeight);
     g.endFill();
   }, []);
-  const app = useApp();
-  console.log("app", app);
 
   return (
-    <Container position={[150, 150]} anchor={{ x: 0.5, y: 0.5 }}>
+    <Container position={[x, y]} anchor={{ x: 0.5, y: 0.5 }}>
       <Graphics anchor={{ x: 0.5, y: 0.5 }} draw={draw} />
       <Attack
         text={attack.toString()}
