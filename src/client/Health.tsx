@@ -21,6 +21,7 @@ export default function Health({ x, y, text }: HealthProps) {
           strokeThickness: 5,
           fontWeight: "bolder",
           fontSize: 26,
+          align: "center",
         })
       }
     />

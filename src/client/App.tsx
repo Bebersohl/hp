@@ -1,5 +1,5 @@
 import "./App.css";
-import { Stage } from "@pixi/react";
+import { Stage, useApp, AppProvider } from "@pixi/react";
 import { useEffect, useMemo, useState } from "react";
 import { socket } from "./socket";
 import Hand from "./Hand";
@@ -8,10 +8,13 @@ import Minion from "./Minion";
 import Hero from "./Hero";
 import EndTurn from "./EndTurn";
 import Mana from "./Mana";
+import { Application } from "pixi.js";
+import { useWindowSize } from "@react-hook/window-size";
+import { cardHeight, heroSize } from "./constants";
 
 export default function App() {
   const [isConnected, setIsConnected] = useState(socket.connected);
-
+  const [width, height] = useWindowSize();
   useEffect(() => {
     function onConnect() {
       setIsConnected(true);
@@ -37,26 +40,79 @@ export default function App() {
       health: 1,
       attack: 2,
     },
+    {
+      type: "minion",
+      cost: 2,
+      health: 1,
+      attack: 2,
+    },
+    {
+      type: "minion",
+      cost: 2,
+      health: 1,
+      attack: 2,
+    },
+    {
+      type: "minion",
+      cost: 2,
+      health: 1,
+      attack: 2,
+    },
+    {
+      type: "minion",
+      cost: 2,
+      health: 1,
+      attack: 2,
+    },
+
+    {
+      type: "minion",
+      cost: 2,
+      health: 1,
+      attack: 2,
+    },
+    {
+      type: "minion",
+      cost: 2,
+      health: 1,
+      attack: 2,
+    },
+    {
+      type: "minion",
+      cost: 2,
+      health: 1,
+      attack: 2,
+    },
+    {
+      type: "minion",
+      cost: 2,
+      health: 1,
+      attack: 2,
+    },
+    {
+      type: "minion",
+      cost: 2,
+      health: 1,
+      attack: 2,
+    },
   ];
 
-  const boardWidth = 1280;
-  const boardHeight = 584;
+  const cardWidth = 150;
+  const cardCount = cards.length;
 
   return (
-    <div>
-      <Stage
-        width={boardWidth}
-        height={boardHeight}
-        options={{ backgroundColor: 0xff0000 }}
-      >
-        <Hand cards={cards} />
-        <Minion attack={2} health={1} name="Mechanical Dragonling" />
-        <Hero health={30} name="Enemy Hero" x={boardWidth / 2} y={0} />
-        <Hero health={30} name="Hero" x={boardWidth / 2} y={300} />
-        <EndTurn x={boardWidth - 100} y={boardHeight / 2} />
-        <Mana mana={3} maxMana={6} x={boardWidth - 30} y={30} />
-        <Mana mana={3} maxMana={6} x={boardWidth - 30} y={boardHeight - 30} />
-      </Stage>
-    </div>
+    <Stage height={height} width={width} options={{ background: "#1099bb" }}>
+      <Minion attack={2} health={1} name="Mechanical Dragonling" />
+      <Hero health={30} name="Enemy Hero" x={width / 2} y={heroSize / 2} />
+      <Hero health={30} name="Hero" x={width / 2} y={300} />
+      <EndTurn x={width - 100} y={height / 2} />
+      <Mana mana={3} maxMana={6} x={width - 30} y={30} />
+      <Mana mana={3} maxMana={6} x={width - 30} y={height - 30} />
+      <Hand
+        cards={cards}
+        x={width / 2 - 50 * (cardCount - 1)}
+        y={height - cardHeight / 2}
+      />
+    </Stage>
   );
 }

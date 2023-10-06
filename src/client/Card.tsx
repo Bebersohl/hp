@@ -1,12 +1,14 @@
 import { Sprite } from "@pixi/react";
+import { cardHeight, cardWidth } from "./constants";
 
 type CardProps = {
   image: string;
   x: number;
   y: number;
+  zIndex: number;
 };
 
-export default function Card({ x, y, image }: CardProps) {
+export default function Card({ x, y, image, zIndex }: CardProps) {
   const onDragStart = (event: any) => {
     const sprite = event.currentTarget;
     sprite.alpha = 0.5;
@@ -33,11 +35,11 @@ export default function Card({ x, y, image }: CardProps) {
   return (
     <Sprite
       image={image}
-      height={518}
-      width={375}
-      scale={0.4}
+      height={cardHeight}
+      width={cardWidth}
       x={x}
       y={y}
+      zIndex={zIndex}
       anchor={{ x: 0.5, y: 0.5 }}
       eventMode="static"
       cursor="pointer"
@@ -45,6 +47,14 @@ export default function Card({ x, y, image }: CardProps) {
       pointerup={onDragEnd}
       pointerupoutside={onDragEnd}
       pointermove={onDragMove}
+      onmouseenter={(e) => {
+        e.currentTarget.zIndex = 11;
+        e.currentTarget.scale.set(0.45, 0.45);
+      }}
+      onmouseleave={(e) => {
+        e.currentTarget.zIndex = zIndex;
+        e.currentTarget.scale.set(0.4, 0.4);
+      }}
     />
   );
 }

@@ -222,7 +222,7 @@ export type Card = {
   attack: number;
 };
 
-type Minion = {
+export type Minion = {
   health: number;
   attack: number;
   hasAction: boolean;

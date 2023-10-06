@@ -22,7 +22,7 @@ export default function EndTurn({ x, y }: EndTurnProps) {
       <Graphics
         anchor={{ x: 0.5, y: 0.5 }}
         draw={draw}
-        interactive
+        eventMode="static"
         cursor="pointer"
         onpointerdown={() => console.log("end turn")}
       />

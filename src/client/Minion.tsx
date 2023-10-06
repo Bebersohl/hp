@@ -1,4 +1,4 @@
-import { Container, Graphics, Text } from "@pixi/react";
+import { Container, Graphics, Text, useApp } from "@pixi/react";
 import { TextStyle } from "pixi.js";
 import { ComponentProps, useCallback } from "react";
 import Attack from "./Attack";
@@ -22,6 +22,8 @@ export default function Minion({ attack, health, name }: MinionProps) {
     g.drawEllipse(0, 0, minionWidth, minionHeight);
     g.endFill();
   }, []);
+  const app = useApp();
+  console.log("app", app);
 
   return (
     <Container position={[150, 150]} anchor={{ x: 0.5, y: 0.5 }}>
